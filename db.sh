@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# getopts example
-
+#getopts example
+#function for 
 #function 
 insert_user()
 {
