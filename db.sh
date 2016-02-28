@@ -1,7 +1,5 @@
 #!/bin/bash
-
-#getopts example
-#function for 
+# getopts example
 #function 
 insert_user()
 {
@@ -9,7 +7,7 @@ insert_user()
 	#read filename	
 	filename=$1	
 	if [ -f "$filename" ];then
-	#echo yes
+	#echo test
 	test_var=$(awk -F" " ' $1~ "^[0-9]*$" { print $1 }' $filename)
 	test_var1=$(awk -F" " ' $2~ "^[a-z,A-Z]*$" { print $2 }' $filename)
 	#echo $test_var
@@ -38,7 +36,20 @@ else
 fi
 	#./sample.sh
 }
-#function 
+delete_user()
+{
+
+}
+help_message()
+{
+	echo "Usage: mailuser [Option...] [FilePath] 
+	
+Options:
+	-i, -I   for adding users in DataBase
+	-h, -H	 for help" 
+echo
+echo "For any bugs please report on https://github.com/ankit864"	
+}
 test_fun()
 {
 	echo $1
@@ -46,23 +57,37 @@ test_fun()
 	#echo $a
 };
 
-while getopts ":a:b:c" opt; do
-case $opt in
-    a)
-      	#echo "-a used";
-	insert_user $OPTARG;     
-	;;
-    b)
-      #echo "-b used: $OPTARG";
-	test_fun $OPTARG;;
-    c)
-      echo "-c used";
-      ;;
-    ?)
-      exit;
-      ;;
-  esac
-done
 
-shift $(( OPTIND - 1 ));
+if [ $# -eq 0 ];
+then
+    help_message
+    exit 0
+else
 
+	while getopts ":i:I:a:d:D:chH" opt; do
+	case $opt in
+	    i|I)
+	      	#echo "-a used";
+		insert_user $OPTARG;     
+		;;
+	    h|H)
+		#echo "test"	
+		help_message;	
+		;;
+	    d|D)
+	      #echo "-b used: $OPTARG";
+		test_fun $OPTARG;;
+	    c)
+	      echo "-c used";
+	      ;;
+	    ?)	
+		echo "mailuser: Invalid option --$1"	
+		echo "Try 'mailuser -h or -H' for more information."	
+		#help_message
+	      exit;
+	      ;;
+	  esac
+	done
+	
+	shift $(( OPTIND - 1 ));
+fi
