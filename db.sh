@@ -23,7 +23,7 @@ insert_user()
 		awk -v var1=$var '{print 1 "," $1 ",""{SHA256-CRYPT}"var1}'  > output.txt 
 		#sed 's/$/@kiet.edu/' output.txt > test.txt
 		#cut -d ' ' -f2,1
-		#mysql -h "localhost" -u "root" "-proot" < "db.sql"
+		mysql -h "localhost" -u "root" "-proot" < "db.sql"
 		echo
 		echo "DATABASE IS UPDATED!!"
 		echo
@@ -36,10 +36,10 @@ else
 fi
 	#./sample.sh
 }
-delete_user()
-{
+#delete_user()
+#{
 
-}
+#}
 help_message()
 {
 	echo "Usage: mailuser [Option...] [FilePath] 
