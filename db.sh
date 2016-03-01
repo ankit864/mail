@@ -34,21 +34,81 @@ insert_user()
 else
 	echo "File not found!!"
 fi
-	#./sample.sh
+	
 }
-#delete_user()
-#{
 
-#}
+delete_user_year()
+{
+echo "Enter year for delteionm"
+read year
+current_year=$(date "+%Y")
+if [ "$year" -ge 1998 ] && [[ "$year" < "$current_year" ]]; then
+	var1=${year: -2}
+	mysql_var="%.${year: -2}%"
+	#mysql -u root -proot -Bse "delete from mailserver.virtual_users where email like '$mysql_var'"      
+	echo $mysql_var
+else
+	echo "enter in range of 1998 to $current_year"
+	delete_user_year
+fi
+}
+
+delete_user_branch()
+{
+echo "Enter year and branch code for deletion"
+echo
+echo -n 'Year: '
+read year
+current_year=$(date "+%Y")
+if [ "$year" -ge 1998 ] && [[ "$year" -le "$current_year" ]]; then
+	echo -n 'Branch code: '
+	read branch
+	var1=${year: -2}
+	mysql_var="%.${year: -2}$branch%"
+
+	echo $mysql_var
+else
+	echo "enter in range of 1998 to $current_year"
+	echo
+	delete_user_branch
+fi
+}
+delete_single_user()
+{
+echo "enter roll number"
+read roll_no
+#echo $roll_no
+lentgh=${#roll_no}
+#echo lentgh $lentgh
+if [ $lentgh -eq 10 ];then
+	var1=$(echo $roll_no | cut -c1-2,6-10) 
+	mysql_var="%.$var1@%" 
+	#mysql -u root -proot -Bse "delete from mailserver.virtual_users where email like '$mysql_var'"      
+	echo $mysql_var
+else
+	echo "roll number is not correct"
+	echo	
+	delete_single_user
+	
+fi
+}
+
 help_message()
 {
 	echo "Usage: mailuser [Option...] [FilePath] 
+       mailuser [Option...]
 	
 Options:
 	-i, -I   for adding users in DataBase
+	
+	-d, -D   for deletion of user from DataBase
+		(-y, -Y for year of deletion) 	
+		(-b, -B for branch code)
+		(-s, -S for single user delete)
+
 	-h, -H	 for help" 
 echo
-echo "For any bugs please report on https://github.com/ankit864"	
+echo "For any suggestion please suggest on https://github.com/ankit864"	
 }
 test_fun()
 {
@@ -58,7 +118,7 @@ test_fun()
 };
 
 
-if [ $# -eq 0 ];
+if [ $# -eq 0 ] || [[ "$1" == "-" ]];
 then
     help_message
     exit 0
@@ -76,7 +136,18 @@ else
 		;;
 	    d|D)
 	      #echo "-b used: $OPTARG";
-		test_fun $OPTARG;;
+		if [[ "$2" == "-y" || "$2" == "-Y" ]];then		
+		delete_user_year ;
+		elif [[ "$2" == "-b" || "$2" == "-B" ]];then
+			#echo "function to defiane for branch"
+			delete_user_branch
+		elif [[ "$2" == "-s" || "$2" == "-S" ]];then
+			delete_single_user
+				
+		else
+			help_message
+		fi
+		;;
 	    c)
 	      echo "-c used";
 	      ;;
