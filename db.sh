@@ -1,6 +1,5 @@
 #!/bin/bash
-# getopts example
-#function 
+ 
 insert_user()
 {
 	#echo "Enter FileName of student record!!"
@@ -37,20 +36,49 @@ fi
 	
 }
 
+insert_single_user()
+{
+echo  enter roll no
+read roll_no
+lentgh=${#roll_no}
+#echo lentgh $lentgh
+if [ $lentgh -eq 10 ];then
+	echo "enter first name"
+	read first_name
+	echo "enter a default password for users!!"
+	read -s pass
+	mysql_pass=$(mkpasswd -m sha-256 $pass)
+	domain_id=1
+	echo $mysql_pass
+	mysql_email="$first_name.$(echo $roll_no | cut -c1-2,6-10)@kiet.edu" 
+	echo $mysql_email
+	mysql -u root -proot -Bse "insert into mailserver.virtual_users (domain_id,email,password) values($domain_id,'$mysql_email','$mysql_pass')"
+	echo "Database updated!!"
+	else 
+		echo "roll no. is not valid"
+fi
+}
+
 delete_user_year()
 {
-echo "Enter year for delteionm"
+echo "Enter year for deletion"
+echo -n year 
 read year
 current_year=$(date "+%Y")
-if [ "$year" -ge 1998 ] && [[ "$year" < "$current_year" ]]; then
+#echo current 
+
+if [ "$year" -ge 1998 ] && [[ "$year" -le "$current_year" ]]; then
 	var1=${year: -2}
 	mysql_var="%.${year: -2}%"
-	#mysql -u root -proot -Bse "delete from mailserver.virtual_users where email like '$mysql_var'"      
-	echo $mysql_var
+	mysql -u root -proot -Bse "delete from mailserver.virtual_users where email like '$mysql_var'"      
+	echo "Deleted from database!!!"	
+	echo
+	#echo $mysql_var
 else
 	echo "enter in range of 1998 to $current_year"
 	delete_user_year
 fi
+
 }
 
 delete_user_branch()
@@ -65,8 +93,10 @@ if [ "$year" -ge 1998 ] && [[ "$year" -le "$current_year" ]]; then
 	read branch
 	var1=${year: -2}
 	mysql_var="%.${year: -2}$branch%"
-
-	echo $mysql_var
+	mysql -u root -proot -Bse "delete from mailserver.virtual_users where email like '$mysql_var'"      
+	echo	
+	echo "Deleted from database!!!"	
+	#echo $mysql_var
 else
 	echo "enter in range of 1998 to $current_year"
 	echo
@@ -83,8 +113,9 @@ lentgh=${#roll_no}
 if [ $lentgh -eq 10 ];then
 	var1=$(echo $roll_no | cut -c1-2,6-10) 
 	mysql_var="%.$var1@%" 
-	#mysql -u root -proot -Bse "delete from mailserver.virtual_users where email like '$mysql_var'"      
-	echo $mysql_var
+	mysql -u root -proot -Bse "delete from mailserver.virtual_users where email like '$mysql_var'"      
+	echo "Deleted from database!!!"	
+	#echo $mysql_var
 else
 	echo "roll number is not correct"
 	echo	
@@ -100,7 +131,8 @@ help_message()
 	
 Options:
 	-i, -I   for adding users in DataBase
-	
+		(-s, -S for single user insert)
+
 	-d, -D   for deletion of user from DataBase
 		(-y, -Y for year of deletion) 	
 		(-b, -B for branch code)
@@ -110,12 +142,12 @@ Options:
 echo
 echo "For any suggestion please suggest on https://github.com/ankit864"	
 }
-test_fun()
-{
-	echo $1
+#test_fun()
+#{
+#	echo $1
 	#read a
 	#echo $a
-};
+#};
 
 
 if [ $# -eq 0 ] || [[ "$1" == "-" ]];
@@ -124,18 +156,23 @@ then
     exit 0
 else
 
-	while getopts ":i:I:a:d:D:chH" opt; do
+	while getopts ":i:I:a:d:DhH" opt; do
 	case $opt in
 	    i|I)
 	      	#echo "-a used";
-		insert_user $OPTARG;     
+		if [[ "$2" == "-s" || "$2" == "-S" ]]; then
+	#		echo "enter filename"
+			insert_single_user	
+		else
+		insert_user      
+		fi;		
 		;;
 	    h|H)
-		#echo "test"	
+			
 		help_message;	
 		;;
 	    d|D)
-	      #echo "-b used: $OPTARG";
+	      
 		if [[ "$2" == "-y" || "$2" == "-Y" ]];then		
 		delete_user_year ;
 		elif [[ "$2" == "-b" || "$2" == "-B" ]];then
@@ -148,14 +185,11 @@ else
 			help_message
 		fi
 		;;
-	    c)
-	      echo "-c used";
-	      ;;
+	    
 	    ?)	
 		echo "mailuser: Invalid option --$1"	
 		echo "Try 'mailuser -h or -H' for more information."	
-		#help_message
-	      exit;
+		exit;
 	      ;;
 	  esac
 	done
